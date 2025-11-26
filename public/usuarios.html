@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios | SGA PRO</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: hsl(210, 100%, 20%);
+            --primary-light: hsl(210, 100%, 30%);
+            --accent: hsl(197, 100%, 45%);
+            --gradient: linear-gradient(135deg, hsl(210, 100%, 18%) 0%, hsl(210, 85%, 35%) 50%, hsl(197, 90%, 45%) 100%);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: hsl(220, 20%, 97%);
+        }
+
+        .navbar {
+            background: var(--gradient) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, rgba(0, 51, 102, 0.05) 0%, rgba(0, 168, 232, 0.05) 100%);
+            border-bottom: 2px solid hsl(210, 40%, 95%);
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            border: none;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 51, 102, 0.3);
+        }
+
+        .badge {
+            font-weight: 600;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.1);
+        }
+
+        .table-hover tbody tr:hover {
+            background: hsl(210, 40%, 98%);
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+
+    <!-- AUTH PROTECTION -->
+    <script>
+        (function () {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+
+            if (!token || !user) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            window.currentUser = JSON.parse(user);
+            window.authToken = token;
+
+            // Solo admins pueden acceder
+            if (window.currentUser.rol !== 'admin') {
+                alert('⛔ Acceso denegado. Solo administradores pueden gestionar usuarios.');
+                window.location.href = '/';
+            }
+        })();
+    </script>
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-dark mb-4">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-industry me-2"></i> SGA <span class="opacity-75 small">PRO</span>
+            </a>
+            <div class="text-white">
+                <a href="/" class="btn btn-link text-white text-decoration-none">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1"><i class="fas fa-users-cog me-2 text-primary"></i>Gestión de Usuarios</h2>
+                <p class="text-muted mb-0">Administra usuarios, roles y permisos del sistema</p>
+            </div>
+            <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+                <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+            </button>
+        </div>
+
+        <!-- TABLA DE USUARIOS -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list me-2"></i>USUARIOS REGISTRADOS
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="tablaUsuarios">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Nombre Completo</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO USUARIO -->
+    <div class="modal fade" id="modalNuevoUsuario" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Crear Nuevo Usuario</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formNuevoUsuario">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-user me-1"></i>Usuario (Login)
+                                </label>
+                                <input type="text" class="form-control" id="nuevoUsername" required>
+                                <small class="text-muted">Sin espacios, solo letras y números</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-lock me-1"></i>Contraseña
+                                </label>
+                                <input type="password" class="form-control" id="nuevoPassword" required>
+                                <small class="text-muted">Mínimo 6 caracteres</small>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-id-card me-1"></i>Nombre Completo
+                                </label>
+                                <input type="text" class="form-control" id="nuevoNombre" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-envelope me-1"></i>Email
+                                </label>
+                                <input type="email" class="form-control" id="nuevoEmail" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-shield-alt me-1"></i>Rol
+                                </label>
+                                <select class="form-select" id="nuevoRol" required>
+                                    <option value="">Seleccionar rol...</option>
+                                    <option value="admin">Administrador</option>
+                                    <option value="operador">Operador</option>
+                                    <option value="visualizador">Visualizador</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="alert alert-info">
+                                    <strong>Permisos por Rol:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li><strong>Administrador:</strong> Control total del sistema</li>
+                                        <li><strong>Operador:</strong> Gestión de productos y movimientos</li>
+                                        <li><strong>Visualizador:</strong> Solo lectura</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Crear Usuario
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR USUARIO -->
+    <div class="modal fade" id="modalEditarUsuario" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Editar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formEditarUsuario">
+                    <input type="hidden" id="editId">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Nombre Completo</label>
+                                <input type="text" class="form-control" id="editNombre" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email</label>
+                                <input type="email" class="form-control" id="editEmail" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Rol</label>
+                                <select class="form-select" id="editRol" required>
+                                    <option value="admin">Administrador</option>
+                                    <option value="operador">Operador</option>
+                                    <option value="visualizador">Visualizador</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Nueva Contraseña (opcional)</label>
+                                <input type="password" class="form-control" id="editPassword"
+                                    placeholder="Dejar en blanco para mantener la actual">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API = '/api/auth';
+
+        // Cargar usuarios al iniciar
+        document.addEventListener('DOMContentLoaded', cargarUsuarios);
+
+        async function cargarUsuarios() {
+            try {
+                const response = await fetch(`${API}/usuarios`, {
+                    headers: { 'Authorization': `Bearer ${window.authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarUsuarios(data.usuarios);
+                } else {
+                    alert('Error al cargar usuarios');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        }
+
+        function mostrarUsuarios(usuarios) {
+            const tbody = document.querySelector('#tablaUsuarios tbody');
+            tbody.innerHTML = '';
+
+            usuarios.forEach(user => {
+                const rolBadge = {
+                    'admin': 'bg-danger',
+                    'operador': 'bg-primary',
+                    'visualizador': 'bg-secondary'
+                };
+
+                const estadoBadge = user.activo
+                    ? '<span class="badge bg-success">Activo</span>'
+                    : '<span class="badge bg-danger">Inactivo</span>';
+
+                const row = `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td><strong>${user.username}</strong></td>
+                        <td>${user.nombre_completo}</td>
+                        <td>${user.email}</td>
+                        <td><span class="badge ${rolBadge[user.rol]}">${user.rol.toUpperCase()}</span></td>
+                        <td>${estadoBadge}</td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning" onclick="editarUsuario(${user.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm ${user.activo ? 'btn-danger' : 'btn-success'}" 
+                                onclick="toggleEstado(${user.id}, ${user.activo})">
+                                <i class="fas fa-${user.activo ? 'ban' : 'check'}"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Crear usuario
+        document.getElementById('formNuevoUsuario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const datos = {
+                username: document.getElementById('nuevoUsername').value.trim(),
+                password: document.getElementById('nuevoPassword').value,
+                nombre_completo: document.getElementById('nuevoNombre').value.trim(),
+                email: document.getElementById('nuevoEmail').value.trim(),
+                rol: document.getElementById('nuevoRol').value
+            };
+
+            try {
+                const response = await fetch(`${API}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.authToken}`
+                    },
+                    body: JSON.stringify(datos)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Usuario creado exitosamente');
+                    bootstrap.Modal.getInstance(document.getElementById('modalNuevoUsuario')).hide();
+                    document.getElementById('formNuevoUsuario').reset();
+                    cargarUsuarios();
+                } else {
+                    alert('❌ ' + (data.message || 'Error al crear usuario'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        });
+
+        // Editar usuario
+        window.editarUsuario = async (id) => {
+            try {
+                const response = await fetch(`${API}/usuarios`, {
+                    headers: { 'Authorization': `Bearer ${window.authToken}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const user = data.usuarios.find(u => u.id === id);
+                    if (user) {
+                        document.getElementById('editId').value = user.id;
+                        document.getElementById('editNombre').value = user.nombre_completo;
+                        document.getElementById('editEmail').value = user.email;
+                        document.getElementById('editRol').value = user.rol;
+                        document.getElementById('editPassword').value = '';
+
+                        new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+
+        document.getElementById('formEditarUsuario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('editId').value;
+            const datos = {
+                nombre_completo: document.getElementById('editNombre').value.trim(),
+                email: document.getElementById('editEmail').value.trim(),
+                rol: document.getElementById('editRol').value
+            };
+
+            const newPassword = document.getElementById('editPassword').value;
+            if (newPassword) {
+                datos.password = newPassword;
+            }
+
+            try {
+                const response = await fetch(`${API}/usuarios/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.authToken}`
+                    },
+                    body: JSON.stringify(datos)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Usuario actualizado');
+                    bootstrap.Modal.getInstance(document.getElementById('modalEditarUsuario')).hide();
+                    cargarUsuarios();
+                } else {
+                    alert('❌ ' + (data.message || 'Error al actualizar'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        });
+
+        // Toggle estado (activar/desactivar)
+        window.toggleEstado = async (id, estadoActual) => {
+            const accion = estadoActual ? 'desactivar' : 'activar';
+            if (!confirm(`¿Está seguro de ${accion} este usuario?`)) return;
+
+            try {
+                const response = await fetch(`${API}/usuarios/${id}/toggle`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`✅ Usuario ${accion}do`);
+                    cargarUsuarios();
+                } else {
+                    alert('❌ Error al cambiar estado');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        };
+    </script>
+</body>
+
+</html>

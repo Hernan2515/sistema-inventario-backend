@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGA PRO | Control Industrial</title>
+
+    <!-- LIBRERÍAS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+    <style>
+        /* ========================================
+           VARIABLES CSS PROFESIONALES
+        ======================================== */
+        :root {
+            /* Colores corporativos mejorados con HSL */
+            --primary: hsl(210, 100%, 20%);
+            /* Azul oscuro profesional */
+            --primary-light: hsl(210, 100%, 30%);
+            --primary-dark: hsl(210, 100%, 15%);
+            --accent: hsl(197, 100%, 45%);
+            /* Celeste vibrante */
+            --accent-light: hsl(197, 100%, 55%);
+
+            /* Fondos y superficies */
+            --bg-main: hsl(220, 20%, 97%);
+            /* Gris muy claro */
+            --bg-card: hsl(0, 0%, 100%);
+            --bg-hover: hsl(210, 40%, 98%);
+
+            /* Textos */
+            --text-primary: hsl(220, 20%, 20%);
+            --text-secondary: hsl(220, 10%, 45%);
+            --text-muted: hsl(220, 10%, 60%);
+
+            /* Estados */
+            --success: hsl(142, 71%, 45%);
+            --success-light: hsl(142, 71%, 95%);
+            --warning: hsl(45, 100%, 51%);
+            --warning-light: hsl(45, 100%, 95%);
+            --danger: hsl(0, 84%, 60%);
+            --danger-light: hsl(0, 84%, 95%);
+
+            /* Sombras */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.16);
+
+            /* Espaciado */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+
+            /* Border radius */
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+
+            /* Transiciones */
+            --transition-fast: 150ms ease-in-out;
+            --transition-base: 250ms ease-in-out;
+            --transition-slow: 350ms ease-in-out;
+        }
+
+        /* ========================================
+           ESTILOS BASE
+        ======================================== */
+        * {
+            transition: background-color var(--transition-base),
+                color var(--transition-base),
+                border-color var(--transition-base),
+                transform var(--transition-base),
+                box-shadow var(--transition-base);
+        }
+
+        /* Dark Mode Variables */
+        :root {
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #1a1d23;
+            --bg-card: #242830;
+            --text-primary: #e4e6eb;
+            --text-secondary: #b0b3b8;
+            --border-color: #3a3f4a;
+            --shadow: rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ========================================
+           NAVBAR CON GLASSMORPHISM
+        ======================================== */
+        .navbar {
+            background: linear-gradient(135deg,
+                    hsl(210, 100%, 18%) 0%,
+                    hsl(210, 85%, 35%) 50%,
+                    hsl(197, 90%, 45%) 100%) !important;
+            box-shadow: 0 8px 32px rgba(8, 49, 89, 0.25);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: visible !important;
+            z-index: 10000 !important;
+        }
+
+        /* ASEGURAR QUE EL DROPDOWN ESTÉ SIEMPRE ARRIBA */
+        .navbar .dropdown {
+            position: relative;
+            z-index: 10001 !important;
+        }
+
+        .navbar .dropdown-menu {
+            z-index: 10002 !important;
+            position: absolute !important;
+        }
+
+        /* Asegurar que las tarjetas estén debajo */
+        .card,
+        .container-fluid>div {
+            position: relative;
+            z-index: 1;
+        }
+
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.05) 50%,
+                    transparent 100%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                transform: translateX(-100%);
+            }
+
+            50% {
+                transform: translateX(100%);
+            }
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ========================================
+           TARJETAS MODERNAS
+        ======================================== */
+        .card {
+            border: none;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-lg);
+            background: var(--bg-card);
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg,
+                    rgba(0, 51, 102, 0.02) 0%,
+                    rgba(0, 168, 232, 0.02) 100%);
+            border-bottom: 2px solid hsl(210, 40%, 95%);
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.25rem;
+        }
+
+        /* Borde lateral con gradiente */
+        .col-lg-4 .card,
+        .col-lg-8 .card {
+            border-left: 4px solid transparent;
+            background-image: linear-gradient(white, white),
+                linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            background-origin: padding-box, border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .alert-pañol {
+            background: linear-gradient(135deg,
+                    var(--warning-light) 0%,
+                    hsl(45, 100%, 97%) 100%);
+            border-left: 5px solid var(--warning);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ========================================
+           DASHBOARD KPIs
+        ======================================== */
+        .display-5 {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--success) 0%, hsl(142, 71%, 35%) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-body h3 {
+            font-weight: 700;
+        }
+
+        /* ========================================
+           TABLA PROFESIONAL
+        ======================================== */
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, hsl(210, 30%, 97%) 0%, hsl(210, 25%, 95%) 100%);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border: none;
+            padding: 1rem 0.75rem;
+            white-space: nowrap;
+        }
+
+        .table tbody tr {
+            transition: all var(--transition-fast);
+        }
+
+        .table tbody tr:hover {
+            background: var(--bg-hover);
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .table tbody td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+            border-top: 1px solid hsl(210, 20%, 95%);
+        }
+
+        /* IMÁGENES EN TABLA */
+        .img-table {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            border: 2px solid hsl(210, 20%, 92%);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .img-table:hover {
+            transform: scale(1.15);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent);
+        }
+
+        /* BADGES MODERNOS */
+        .badge {
+            font-weight: 600;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .bg-success {
+            background: linear-gradient(135deg, var(--success) 0%, hsl(142, 71%, 40%) 100%) !important;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
+        }
+
+        .bg-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, hsl(0, 84%, 55%) 100%) !important;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+        }
+
+        /* ========================================
+           BOTONES MEJORADOS
+        ======================================== */
+        .btn {
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 1.25rem;
+            transition: all var(--transition-base);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            box-shadow: 0 4px 12px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, hsl(142, 71%, 40%) 100%);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning) 0%, hsl(45, 100%, 48%) 100%);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-dark {
+            background: linear-gradient(135deg, hsl(220, 20%, 20%) 0%, hsl(220, 20%, 15%) 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-outline-secondary:hover,
+        .btn-outline-secondary:focus {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.875rem;
+            font-size: 0.8rem;
+        }
+
+        /* ========================================
+           MODALES REFINADOS
+        ======================================== */
+        .modal-content {
+            border-radius: var(--radius-lg);
+            border: none;
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            border-bottom: none;
+        }
+
+        .modal-header.bg-secondary {
+            background: linear-gradient(135deg, hsl(220, 20%, 30%) 0%, hsl(220, 20%, 25%) 100%);
+        }
+
+        .modal-header.bg-warning {
+            background: linear-gradient(135deg, var(--warning) 0%, hsl(45, 100%, 48%) 100%);
+            color: var(--text-primary) !important;
+        }
+
+        .modal-header h6 {
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin: 0;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-backdrop.show {
+            backdrop-filter: blur(4px);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* ========================================
+           FORMULARIOS
+        ======================================== */
+        .form-control,
+        .form-select {
+            border: 2px solid hsl(210, 20%, 90%);
+            border-radius: var(--radius-sm);
+            padding: 0.625rem 0.875rem;
+            transition: all var(--transition-base);
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.1);
+            outline: none;
+        }
+
+        .form-control.fw-bold {
+            font-weight: 600;
+        }
+
+        label.fw-bold {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.02em;
+        }
+
+        /* UPLOAD ZONE */
+        .upload-zone {
+            height: 200px;
+            border: 3px dashed hsl(210, 20%, 85%);
+            border-radius: var(--radius-md);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background: linear-gradient(135deg, hsl(210, 30%, 98%) 0%, hsl(210, 25%, 96%) 100%);
+            transition: all var(--transition-base);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, hsl(197, 100%, 98%) 0%, hsl(197, 100%, 96%) 100%);
+            transform: scale(1.02);
+        }
+
+        .upload-zone img {
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: var(--radius-sm);
+        }
+
+        /* ========================================
+           ANIMACIONES
+        ======================================== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .alert-pañol {
+            animation: pulse 2s infinite;
+        }
+
+        /* ========================================
+           ÁREA DE IMPRESIÓN
+        ======================================== */
+        #areaImpresion {
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #areaImpresion,
+            #areaImpresion * {
+                visibility: visible;
+            }
+
+            #areaImpresion {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                padding: 20px;
+                z-index: 9999;
+            }
+
+            .modal-backdrop {
+                display: none !important;
+            }
+        }
+
+        /* ========================================
+           RESPONSIVE
+        ======================================== */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .card {
+                margin-bottom: var(--spacing-md);
+            }
+
+            .display-5 {
+                font-size: 2rem;
+            }
+
+            .table {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* ========================================
+           UTILIDADES ADICIONALES
+        ======================================== */
+        .text-primary {
+            color: var(--primary) !important;
+        }
+
+        .bg-light {
+            background: hsl(210, 30%, 98%) !important;
+        }
+
+        .border {
+            border-color: hsl(210, 20%, 90%) !important;
+        }
+
+        hr {
+            border-color: hsl(210, 20%, 90%);
+            opacity: 0.5;
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: hsl(210, 20%, 96%);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        }
+
+        /* ========================================
+           DATATABLE FIXES
+        ======================================== */
+        .dataTables_wrapper .dataTables_length {
+            float: left !important;
+            text-align: left !important;
+            margin-bottom: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_filter {
+            float: right !important;
+            text-align: right !important;
+            margin-bottom: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_info {
+            float: left !important;
+            padding-top: 0.755em;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            float: right !important;
+            text-align: right !important;
+            padding-top: 0.25em;
+        }
+
+        .dataTables_wrapper::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+    </style>
+
+    <!-- AUTH PROTECTION SCRIPT -->
+    <script>
+        // Verificar autenticación al cargar la página
+        (function () {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+
+            if (!token || !user) {
+                // No hay sesión, redirigir al login
+                window.location.href = '/login.html';
+                return;
+            }
+
+            // Guardar datos globales
+            window.currentUser = JSON.parse(user);
+            window.authToken = token;
+
+            // Cargar información del usuario en navbar cuando el DOM esté listo
+            document.addEventListener('DOMContentLoaded', function () {
+                const userData = JSON.parse(user);
+                document.getElementById('userName').textContent = userData.nombre_completo || userData.username;
+                document.getElementById('dropdownUserName').textContent = userData.nombre_completo || userData.username;
+                document.getElementById('userRole').textContent = userData.rol || 'Usuario';
+
+                // Mostrar menú de admin solo para administradores
+                if (userData.rol === 'admin') {
+                    document.getElementById('adminMenuLink').style.display = 'block';
+                    document.getElementById('adminMenuDivider').style.display = 'block';
+                }
+
+                // Cargar preferencia de tema
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    document.getElementById('themeIcon').className = 'fas fa-sun fs-5';
+                }
+                // Event listener para logout
+                const logoutLink = document.getElementById('logoutLink');
+                if (logoutLink) {
+                    logoutLink.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        console.log('Click en logout detectado, llamando a window.logout');
+                        if (typeof window.logout === 'function') {
+                            window.logout();
+                        } else {
+                            console.error('window.logout no es una función');
+                            // Fallback manual
+                            localStorage.clear();
+                            window.location.replace('/login.html');
+                        }
+                    });
+                }
+            });
+        })();
+
+        // Función para alternar tema
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const currentTheme = html.getAttribute('data-theme');
+
+            if (currentTheme === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                themeIcon.className = 'fas fa-moon fs-5';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun fs-5';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Función para cerrar sesión
+        function logout() {
+            console.log('Ejecutando logout...');
+            try {
+                localStorage.clear();
+                window.location.replace('/login.html');
+            } catch (e) {
+                console.error('Error:', e);
+                window.location.href = '/login.html';
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- HOJA DE IMPRESIÓN (SOLO VISIBLE AL IMPRIMIR) -->
+    <div id="areaImpresion">
+        <div class="d-flex justify-content-between border-bottom border-3 border-dark pb-3 mb-4 align-items-end">
+            <div>
+                <h1 class="fw-bold m-0">ORDEN DE SALIDA</h1><small class="fw-bold">CONTROL DE ALMACÉN</small>
+            </div>
+            <div class="text-center"><canvas id="qrPrint" style="width:90px"></canvas>
+                <div class="border border-danger px-2 fw-bold text-danger mt-1">N° <span id="pFolio">000</span></div>
+            </div>
+        </div>
+        <div class="row border mb-4 mx-0 p-3 bg-light">
+            <div class="col-6">RESPONSABLE: <strong id="pResp" class="fs-5 text-uppercase">---</strong></div>
+            <div class="col-6 text-end">FECHA: <strong id="pFecha">---</strong></div>
+        </div>
+        <table class="table table-bordered border-dark text-center">
+            <thead class="table-secondary">
+                <tr>
+                    <th>CANT</th>
+                    <th>CÓDIGO</th>
+                    <th>DESCRIPCIÓN</th>
+                </tr>
+            </thead>
+            <tbody id="pBody"></tbody>
+        </table>
+        <div class="row mt-5 pt-5 text-center fw-bold">
+            <div class="col-5 border-top border-dark mx-3">ALMACÉN</div>
+            <div class="col-1"></div>
+            <div class="col-5 border-top border-dark mx-3">RECIBIDO CONFORME</div>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <nav class="navbar navbar-dark sticky-top mb-4" style="z-index: 10000;">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="#"><i class="fas fa-industry me-2"></i> SGA <span
+                    class="opacity-75 small">CORPORATIVO</span></a>
+            <div class="text-white d-flex align-items-center gap-3">
+                <!-- Dark Mode Toggle -->
+                <button class="btn btn-link text-white p-0" id="themeToggle" onclick="toggleTheme()"
+                    title="Cambiar tema">
+                    <i class="fas fa-moon fs-5" id="themeIcon"></i>
+                </button>
+
+                <!-- Notificaciones (placeholder) -->
+                <div class="position-relative">
+                    <i class="fas fa-bell fs-5" style="cursor:pointer"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="font-size:0.6rem; display:none" id="notifBadge">0</span>
+                </div>
+
+                <div class="text-end d-none d-md-block lh-1">
+                    <small id="userRole" class="text-uppercase">OPERADOR</small>
+                    <div class="fw-bold" style="font-size:0.8rem" id="userName">Usuario</div>
+                </div>
+                <div class="dropdown" style="position: relative; z-index: 10001;">
+                    <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-user-circle fs-2"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow"
+                        style="z-index:10002 !important; min-width:200px; position: absolute;">
+                        <li>
+                            <h6 class="dropdown-header"><i class="fas fa-user me-2"></i><span
+                                    id="dropdownUserName">Usuario</span></h6>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li id="adminMenuLink" style="display:none;">
+                            <a class="dropdown-item" href="/usuarios.html">
+                                <i class="fas fa-users-cog me-2"></i>Gestión de Usuarios
+                            </a>
+                        </li>
+                        <li id="adminMenuDivider" style="display:none;">
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="#" id="logoutLink"><i
+                                    class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+
+        <!-- ALERTA PAÑOL -->
+        <div id="panelAlerta" class="alert alert-pañol shadow-sm d-flex justify-content-between align-items-center mb-4"
+            style="display:none !important">
+            <div><i class="fas fa-exclamation-triangle fs-4 text-warning me-2 align-middle"></i>
+                <strong>PENDIENTES:</strong> Hay <span id="numPend" class="fw-bold text-dark fs-5">0</span> herramientas
+                fuera.
+            </div>
+            <button class="btn btn-dark btn-sm fw-bold px-3" onclick="modalDev.show()">GESTIONAR</button>
+        </div>
+
+        <!-- DASHBOARD ANALYTICS AVANZADO -->
+        <div class="row g-4 mb-4">
+            <!-- Valorización Total -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted mb-2">
+                            <i class="fas fa-dollar-sign fs-4"></i>
+                        </div>
+                        <h2 class="display-5 fw-bold text-success mb-0" id="kpiVal">$0</h2>
+                        <small class="text-muted fw-bold">VALORIZADO</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Productos -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted mb-2">
+                            <i class="fas fa-boxes fs-4"></i>
+                        </div>
+                        <h2 class="display-5 fw-bold text-primary mb-0" id="kpiTot">0</h2>
+                        <small class="text-muted fw-bold">PRODUCTOS</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Crítico -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted mb-2">
+                            <i class="fas fa-exclamation-triangle fs-4"></i>
+                        </div>
+                        <h2 class="display-5 fw-bold text-danger mb-0" id="kpiLow">0</h2>
+                        <small class="text-muted fw-bold">CRÍTICOS</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sin Movimiento -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted mb-2">
+                            <i class="fas fa-pause-circle fs-4"></i>
+                        </div>
+                        <h2 class="display-5 fw-bold text-secondary mb-0" id="kpiNoMove">0</h2>
+                        <small class="text-muted fw-bold">SIN MOVIMIENTO</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICOS PRINCIPALES -->
+        <div class="row g-4 mb-4">
+            <!-- Gráfico de Barras - Stock por Categoría -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold"><i class="fas fa-chart-bar me-2"></i>STOCK POR CATEGORÍA</span>
+                            <i class="fas fa-info-circle text-muted" title="Distribución de inventario"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div style="height:280px"><canvas id="chartBar"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de Torta - Valorización -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold"><i class="fas fa-chart-pie me-2"></i>VALORIZACIÓN POR CATEGORÍA</span>
+                            <i class="fas fa-info-circle text-muted" title="Distribución de valor"></i>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div style="max-width:280px; max-height:280px"><canvas id="chartPie"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILA ADICIONAL -->
+        <div class="row g-4 mb-4">
+            <!-- Top 10 Productos -->
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header bg-primary bg-opacity-10 border-bottom">
+                        <span class="fw-bold text-primary"><i class="fas fa-star me-2"></i>TOP 10 PRODUCTOS MÁS
+                            IMPORTANTES</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="40" class="text-center">#</th>
+                                        <th>PRODUCTO</th>
+                                        <th class="text-center">STOCK</th>
+                                        <th class="text-end">VALOR</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topProductos">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">Cargando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas Rápidas -->
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <span class="fw-bold"><i class="fas fa-tachometer-alt me-2"></i>ESTADÍSTICAS</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 pb-3 border-bottom">
+                            <small class="text-muted d-block mb-1">Tasa de Rotación</small>
+                            <h4 class="mb-0 text-info" id="kpiRotacion">0%</h4>
+                        </div>
+                        <div class="mb-3 pb-3 border-bottom">
+                            <small class="text-muted d-block mb-1">Movimientos del Mes</small>
+                            <h4 class="mb-0 text-primary" id="kpiMovMes">0</h4>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block mb-1">Valor Promedio/Producto</small>
+                            <h4 class="mb-0 text-success" id="kpiPromedio">$0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="card mb-5">
+            <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
+                <span class="fs-6 text-dark"><i class="fas fa-list me-2"></i> MAESTRO DE MATERIALES</span>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary fw-bold btn-sm" onclick="verHistorial()"><i
+                            class="fas fa-history"></i> HISTORIAL</button>
+                    <button class="btn btn-primary fw-bold btn-sm px-3" onclick="nuevo()"><i
+                            class="fas fa-plus me-2"></i> NUEVO</button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive p-3">
+                    <table id="tabla" class="table table-hover align-middle w-100 small">
+                        <thead class="table-light text-uppercase">
+                            <tr>
+                                <th>FOTO</th>
+                                <th>SKU</th>
+                                <th>DESCRIPCIÓN</th>
+                                <th>UBICACIÓN</th>
+                                <th class="text-center">STOCK</th>
+                                <th class="text-end">COSTO</th>
+                                <th class="text-center">ESTADO</th>
+                                <th class="text-center" style="width:140px">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody" class="fw-bold text-secondary"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALES -->
+    <!-- 1. FICHA -->
+    <div class="modal fade" id="modFicha" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-dark text-white py-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <h6 class="m-0 fw-bold text-uppercase">Datos del Activo</h6>
+                        <div class="btn-group ms-4 border-secondary border rounded"><button
+                                class="btn btn-secondary btn-sm py-0 px-2" onclick="nav(-1)">
+                                << /button><button class="btn btn-secondary btn-sm py-0 px-2"
+                                        onclick="nav(1)">></button></div>
+                    </div>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <form id="formFicha">
+                        <div class="row g-4">
+                            <div class="col-lg-3 text-center">
+                                <input type="file" id="fileIn" hidden><input type="hidden" name="imagen_url" id="urlIn">
+                                <div class="upload-zone bg-white shadow-sm mb-2"
+                                    onclick="document.getElementById('fileIn').click()"><img id="prevImg"
+                                        src="https://via.placeholder.com/300"></div>
+                                <small class="text-muted"><i class="fas fa-camera"></i> Cambiar Foto</small>
+                                <div class="mt-3 bg-white p-2 rounded border d-inline-block"><canvas
+                                        id="qrCode"></canvas>
+                                    <div id="qrTxt" class="small font-monospace"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-9">
+                                <div class="card h-100 p-4 border-0 shadow-sm">
+                                    <div class="row g-3">
+                                        <div class="col-4"><label class="fw-bold small text-muted">SKU</label><input
+                                                name="sku" class="form-control fw-bold text-primary" required
+                                                oninput="mkQr(this.value)"></div>
+                                        <div class="col-8"><label class="fw-bold small text-muted">NOMBRE</label><input
+                                                name="nombre" class="form-control fw-bold" required></div>
+                                        <div class="col-6"><label
+                                                class="fw-bold small text-muted">CATEGORÍA</label><select
+                                                name="categoria_id" class="form-select" id="selCat" required></select>
+                                        </div>
+                                        <div class="col-6"><label
+                                                class="fw-bold small text-muted">MARCA/MODELO</label><input name="marca"
+                                                class="form-control" placeholder="Ej: Samsung, Sony"></div>
+                                        <div class="col-6"><label
+                                                class="fw-bold small text-muted">DESCRIPCIÓN</label><input
+                                                name="descripcion" class="form-control"
+                                                placeholder="Descripción del producto"></div>
+                                        <div class="col-6"><label
+                                                class="fw-bold small text-muted">UBICACIÓN</label><input
+                                                name="ubicacion_id" class="form-control" placeholder="Ej: A1, B2"></div>
+                                        <div class="col-3"><label class="fw-bold small text-muted">STOCK
+                                                ACTUAL</label><input type="number" name="stock_actual"
+                                                class="form-control fw-bold text-center bg-light" required></div>
+                                        <div class="col-3"><label class="fw-bold small text-muted">STOCK
+                                                MÍNIMO</label><input type="number" name="stock_minimo"
+                                                class="form-control text-center" placeholder="0"></div>
+                                        <div class="col-3"><label class="fw-bold small text-muted">COSTO
+                                                UNITARIO</label><input type="number" step="0.01" name="precio_unitario"
+                                                class="form-control text-end" required></div>
+                                        <div class="col-3"><label
+                                                class="fw-bold small text-muted">PROVEEDOR</label><input
+                                                name="proveedor" class="form-control" placeholder="Nombre"></div>
+                                        <div class="col-6"><label class="fw-bold small text-muted">CÓDIGO
+                                                PROVEEDOR</label><input name="referencia_proveedor" class="form-control"
+                                                placeholder="Código externo"></div>
+                                        <div class="col-6"><label class="fw-bold small text-muted">ESTADO</label><select
+                                                name="estatus" class="form-select">
+                                                <option>DISPONIBLE</option>
+                                                <option>DAÑADO</option>
+                                                <option>MANTENIMIENTO</option>
+                                                <option>EN GARANTÍA</option>
+                                                <option>DESCARTADO</option>
+                                            </select></div>
+                                        <div class="col-12 text-end mt-4"><button
+                                                class="btn btn-success px-5 fw-bold">GUARDAR</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTROS MODALES (Movimientos, Prestamos, Devoluciones, Kardex) -->
+    <div class="modal fade" id="modMov" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h6 class="fw-bold"><i class="fas fa-exchange-alt me-2"></i>AJUSTE DE INVENTARIO</h6>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="fMov">
+                        <input type="hidden" id="idMov">
+
+                        <!-- Información del Producto -->
+                        <div class="alert alert-info mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-box me-2"></i>
+                                    <strong id="movProdNombre">Producto</strong>
+                                </div>
+                                <div class="text-end">
+                                    <small class="d-block text-muted">Stock Actual</small>
+                                    <span class="badge bg-dark fs-6" id="movStockActual">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tipo de Movimiento -->
+                        <div class="card mb-3 border-primary">
+                            <div class="card-header bg-primary bg-opacity-10 py-2">
+                                <small class="fw-bold text-primary"><i class="fas fa-arrows-alt-v me-2"></i>TIPO DE
+                                    MOVIMIENTO</small>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="d-flex gap-2">
+                                    <input type="radio" class="btn-check" name="t" id="r1" value="ENTRADA" checked>
+                                    <label class="btn btn-outline-success w-100 fw-bold py-3" for="r1">
+                                        <i class="fas fa-arrow-down fs-4 d-block mb-1"></i>
+                                        ENTRADA
+                                    </label>
+                                    <input type="radio" class="btn-check" name="t" id="r2" value="SALIDA">
+                                    <label class="btn btn-outline-danger w-100 fw-bold py-3" for="r2">
+                                        <i class="fas fa-arrow-up fs-4 d-block mb-1"></i>
+                                        SALIDA
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detalles del Movimiento -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light py-2">
+                                <small class="fw-bold text-dark"><i class="fas fa-clipboard-list me-2"></i>DETALLES DEL
+                                    MOVIMIENTO</small>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="fw-bold small text-muted">CANTIDAD *</label>
+                                        <input type="number" id="nCant" class="form-control text-center fw-bold fs-5"
+                                            placeholder="0" required min="1" oninput="calcularStockResultante()">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="fw-bold small text-muted">REFERENCIA DOC.</label>
+                                        <input id="nRef" class="form-control" placeholder="Ej: ORD-001, FAC-123">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="fw-bold small text-muted">FECHA</label>
+                                        <input type="date" id="nFecha" class="form-control">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="fw-bold small text-muted">MOTIVO *</label>
+                                        <textarea id="nMot" class="form-control"
+                                            placeholder="Describa el motivo del movimiento" rows="2"
+                                            required></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Indicador de Stock Resultante -->
+                                <div class="alert alert-secondary mt-3 mb-0">
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <small class="text-muted d-block">Stock Anterior</small>
+                                            <strong class="fs-5" id="displayStockAnterior">0</strong>
+                                        </div>
+                                        <div class="col-4">
+                                            <i class="fas fa-arrow-right text-muted"></i>
+                                        </div>
+                                        <div class="col-4">
+                                            <small class="text-muted d-block">Stock Resultante</small>
+                                            <strong class="fs-5 text-primary" id="displayStockResultante">0</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información Adicional -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light py-2">
+                                <small class="fw-bold text-dark"><i class="fas fa-user-tie me-2"></i>INFORMACIÓN
+                                    ADICIONAL</small>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="fw-bold small text-muted">RESPONSABLE</label>
+                                        <input id="nRes" class="form-control" placeholder="Nombre del responsable">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="fw-bold small text-muted">DEPARTAMENTO</label>
+                                        <input id="nDept" class="form-control" placeholder="Ej: Almacén, Producción">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="fw-bold small text-muted">OBSERVACIONES</label>
+                                        <textarea id="nObs" class="form-control"
+                                            placeholder="Notas adicionales (opcional)" rows="2"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary w-100 fw-bold py-2">
+                            <i class="fas fa-check-circle me-2"></i>REGISTRAR MOVIMIENTO
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modPres" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-warning">
+                    <h6 class="fw-bold"><i class="fas fa-tools me-2"></i>ORDEN DE SALIDA - PRÉSTAMO DE HERRAMIENTAS</h6>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="fPres">
+                        <!-- SECCIÓN 1: Agregar Herramientas -->
+                        <div class="card mb-3 border-primary">
+                            <div class="card-header bg-primary text-white py-2">
+                                <small class="fw-bold"><i class="fas fa-plus-circle me-2"></i>AGREGAR
+                                    HERRAMIENTAS</small>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-md-6">
+                                        <label class="fw-bold small text-muted">SELECCIONAR HERRAMIENTA</label>
+                                        <select id="selHerramienta" class="form-select">
+                                            <option value="">-- Seleccione un producto --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="fw-bold small text-muted">CANTIDAD</label>
+                                        <input type="number" id="cantHerramienta"
+                                            class="form-control text-center fw-bold" value="1" min="1">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-success w-100 fw-bold"
+                                            onclick="agregarHerramienta()">
+                                            <i class="fas fa-plus me-1"></i>AGREGAR
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN 2: Tabla de Herramientas Seleccionadas -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+                                <small class="fw-bold text-dark">
+                                    <i class="fas fa-list me-2"></i>HERRAMIENTAS SELECCIONADAS
+                                </small>
+                                <span class="badge bg-primary" id="badgeCount">0 items</span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead class="table-light sticky-top">
+                                            <tr>
+                                                <th class="small">SKU</th>
+                                                <th class="small">DESCRIPCIÓN</th>
+                                                <th class="text-center small" style="width: 100px;">CANTIDAD</th>
+                                                <th class="text-center small" style="width: 80px;">ACCIÓN</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyHerramientas">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted py-4">
+                                                    <i class="fas fa-inbox fs-1 mb-2 d-block opacity-25"></i>
+                                                    <small>No hay herramientas agregadas</small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN 3: Información del Responsable -->
+                        <div class="card mb-3 border-secondary">
+                            <div class="card-header bg-secondary text-white py-2">
+                                <small class="fw-bold"><i class="fas fa-user-tie me-2"></i>INFORMACIÓN DEL
+                                    RESPONSABLE</small>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="fw-bold small text-muted">TÉCNICO/RESPONSABLE *</label>
+                                        <input id="pTec" class="form-control fw-bold" placeholder="Nombre del técnico"
+                                            required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="fw-bold small text-muted">DEPARTAMENTO</label>
+                                        <input id="pDept" class="form-control"
+                                            placeholder="Ej: Taller, Oficina, Mantenimiento">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="fw-bold small text-muted">FECHA DEVOLUCIÓN ESTIMADA</label>
+                                        <input type="date" id="pFecDev" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="fw-bold small text-muted">OBSERVACIONES</label>
+                                        <textarea id="pObs" class="form-control" placeholder="Notas adicionales"
+                                            rows="2"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN 4: Opciones y Acciones -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="form-check">
+                                <input type="checkbox" id="chkG" class="form-check-input" checked>
+                                <label for="chkG" class="form-check-label fw-bold">
+                                    <i class="fas fa-print me-1"></i>Imprimir Vale de Salida
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-dark px-5 fw-bold">
+                                <i class="fas fa-check-circle me-2"></i>PROCESAR PRÉSTAMO
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modDev" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h6 class="fw-bold"><i class="fas fa-undo me-2"></i>CONTROL DEVOLUCIONES</h6><button
+                        class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <table class="table table-striped mb-0 small">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>TÉCNICO</th>
+                                <th>EQUIPO</th>
+                                <th>CANT</th>
+                                <th>FECHA</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbDev"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modHist" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h6 class="fw-bold text-primary">KARDEX GENERAL</h6><button class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <table class="table table-bordered mb-0 small">
+                        <thead class="table-dark text-center">
+                            <tr>
+                                <th>FECHA</th>
+                                <th>MOV</th>
+                                <th>PRODUCTO</th>
+                                <th>CANT</th>
+                                <th>DETALLE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbHist"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    < <!-- JAVASCRIPT -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+        <script>
+            const API = '/api';
+            let data = [], mF, mM, mP, mD, mH, idx = -1;
+            let herramientasSeleccionadas = []; // Array para almacenar herramientas del préstamo
+
+            $(document).ready(() => {
+                mF = new bootstrap.Modal('#modFicha'); mM = new bootstrap.Modal('#modMov'); mP = new bootstrap.Modal('#modPres');
+                mD = new bootstrap.Modal('#modDev'); mH = new bootstrap.Modal('#modHist');
+                displayUserInfo(); // Mostrar info del usuario
+                init();
+            });
+
+            // Mostrar información del usuario en navbar
+            function displayUserInfo() {
+                if (window.currentUser) {
+                    // La columna se llama "nombre", no "nombre_completo"
+                    document.getElementById('userName').textContent = window.currentUser.nombre;
+                    document.getElementById('userRole').textContent = window.currentUser.rol.toUpperCase();
+                    document.getElementById('dropdownUserName').textContent = window.currentUser.nombre;
+                }
+            }
+
+            // Logout - Cerrar sesión
+            window.logout = () => {
+                if (confirm('¿Desea cerrar sesión?')) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login.html';
+                }
+            }
+
+            // Dark Mode Toggle
+            window.toggleTheme = () => {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+
+                // Cambiar icono
+                const icon = document.getElementById('themeIcon');
+                if (newTheme === 'dark') {
+                    icon.className = 'fas fa-sun fs-5';
+                } else {
+                    icon.className = 'fas fa-moon fs-5';
+                }
+            }
+
+            // Inicializar tema guardado
+            function initTheme() {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+
+                const icon = document.getElementById('themeIcon');
+                if (savedTheme === 'dark') {
+                    icon.className = 'fas fa-sun fs-5';
+                } else {
+                    icon.className = 'fas fa-moon fs-5';
+                }
+            }
+
+            // Llamar al inicializar
+            initTheme();
+
+            async function init() {
+                const rC = await fetch(`${API}/almacen/categorias`); const jC = await rC.json();
+                const s = document.getElementById('selCat'); s.innerHTML = '';
+                jC.data.forEach(c => s.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
+                await load();
+                populateToolSelector(); // Llenar selector de herramientas
+                check();
+            }
+
+            async function load() {
+                const r = await fetch(`${API}/almacen/productos`); const j = await r.json(); data = j.data;
+                if ($.fn.DataTable.isDataTable('#tabla')) $('#tabla').DataTable().destroy();
+                const tb = document.getElementById('tbody'); tb.innerHTML = '';
+
+                let tv = 0, stats = {}, valorStats = {};
+                data.forEach((p, i) => {
+                    const valor = p.stock_actual * p.precio_unitario;
+                    tv += valor;
+                    const cat = p.categoria_nombre || 'Otro';
+                    stats[cat] = (stats[cat] || 0) + parseInt(p.stock_actual);
+                    valorStats[cat] = (valorStats[cat] || 0) + valor;
+
+                    const im = p.imagen_url || 'https://via.placeholder.com/100';
+                    const cl = p.estatus == 'DISPONIBLE' ? 'success' : 'danger';
+
+                    tb.innerHTML += `<tr>
+                        <td class="text-center"><img src="${im}" class="img-table shadow-sm" onclick="window.open('${im}')"></td>
+                        <td class="fw-bold text-primary font-monospace">${p.sku}</td>
+                        <td><div class="text-dark fw-bold">${p.nombre}</div><small class="text-muted">${p.marca || ''}</small></td>
+                        <td>${p.ubicacion_id || '-'}</td>
+                        <td class="text-center fw-bold fs-6">${p.stock_actual}</td>
+                        <td class="text-end">$${p.precio_unitario}</td>
+                        <td class="text-center"><span class="badge bg-${cl}">${p.estatus}</span></td>
+                        <td class="text-center text-nowrap">
+                            <button class="btn btn-light btn-sm border text-primary" onclick="ficha(${i})"><i class="fas fa-pen"></i></button>
+                            <button class="btn btn-light btn-sm border text-dark mx-1" onclick="mov(${i})"><i class="fas fa-exchange-alt"></i></button>
+                            <button class="btn btn-warning btn-sm border-warning text-dark" onclick="pres()" title="Préstamo"><i class="fas fa-tools"></i></button>
+                        </td>
+                    </tr>`;
+                });
+
+                $('#tabla').DataTable({ language: { url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json" }, pageLength: 7 });
+
+                // KPIs Básicos
+                document.getElementById('kpiVal').innerText = '$' + tv.toLocaleString();
+                document.getElementById('kpiTot').innerText = data.length;
+                document.getElementById('kpiLow').innerText = data.filter(x => x.stock_actual <= x.stock_minimo).length;
+
+                // KPIs Avanzados
+                document.getElementById('kpiNoMove').innerText = data.filter(x => !x.ultimo_movimiento || x.stock_actual === 0).length;
+                document.getElementById('kpiPromedio').innerText = '$' + Math.round(tv / data.length).toLocaleString();
+                document.getElementById('kpiRotacion').innerText = '75%'; // Placeholder - requiere datos históricos
+                document.getElementById('kpiMovMes').innerText = Math.floor(Math.random() * 150) + 50; // Placeholder
+
+                // Top 10 Productos
+                const top10 = data
+                    .map(p => ({ ...p, valor: p.stock_actual * p.precio_unitario }))
+                    .sort((a, b) => b.valor - a.valor)
+                    .slice(0, 10);
+
+                const topTbody = document.getElementById('topProductos');
+                topTbody.innerHTML = '';
+                top10.forEach((p, i) => {
+                    const medalColor = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? '#cd7f32' : '#666';
+                    topTbody.innerHTML += `<tr>
+                        <td class="text-center"><span class="badge" style="background:${medalColor}">${i + 1}</span></td>
+                        <td><strong>${p.nombre}</strong> <small class="text-muted">(${p.sku})</small></td>
+                        <td class="text-center"><span class="badge bg-primary">${p.stock_actual}</span></td>
+                        <td class="text-end fw-bold text-success">$${p.valor.toLocaleString()}</td>
+                    </tr>`;
+                });
+
+                drawCharts(stats, valorStats);
+            }
+
+            let chartB = null, chartP = null;
+
+            function drawCharts(stockData, valorData) {
+                // Gráfico de Barras - Stock
+                if (chartB) chartB.destroy();
+                chartB = new Chart(document.getElementById('chartBar'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(stockData),
+                        datasets: [{
+                            label: 'Stock',
+                            data: Object.values(stockData),
+                            backgroundColor: '#003366',
+                            borderRadius: 5,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+
+                // Gráfico de Torta - Valorización
+                if (chartP) chartP.destroy();
+                const colors = ['#003366', '#00a8e8', '#00c9ff', '#00e4ff', '#4dd0e1', '#80deea'];
+                chartP = new Chart(document.getElementById('chartPie'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(valorData),
+                        datasets: [{
+                            data: Object.values(valorData),
+                            backgroundColor: colors.slice(0, Object.keys(valorData).length),
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    font: { size: 11 }
+                                }
+                            }
+                        },
+                        maintainAspectRatio: true
+                    }
+                });
+            }
+
+            // ACCIONES
+            window.nuevo = () => { idx = -1; document.getElementById('formFicha').reset(); document.getElementById('prevImg').src = "https://via.placeholder.com/300"; mkQr('NUEVO'); mF.show(); }
+            window.ficha = (i) => { idx = i; const p = data[i]; const f = document.getElementById('formFicha'); Object.keys(p).forEach(k => { if (f.elements[k]) f.elements[k].value = p[k] }); document.getElementById('prevImg').src = p.imagen_url || ""; mkQr(p.sku); mF.show(); }
+            window.nav = (d) => { let n = idx + d; if (n >= 0 && n < data.length) ficha(n); }
+            function mkQr(t) { new QRious({ element: document.getElementById('qrCode'), value: t, size: 100 }); document.getElementById('qrTxt').innerText = t; }
+
+            // Abrir modal de movimientos con información del producto
+            window.mov = (i) => {
+                const p = data[i];
+                document.getElementById('idMov').value = p.id;
+                document.getElementById('movProdNombre').innerText = `${p.nombre} (${p.sku})`;
+                document.getElementById('movStockActual').innerText = p.stock_actual;
+
+                // Establecer fecha por defecto (hoy)
+                const hoy = new Date().toISOString().split('T')[0];
+                document.getElementById('nFecha').value = hoy;
+
+                // Guardar stock actual para cálculos
+                window.stockActualProducto = parseInt(p.stock_actual) || 0;
+
+                // Resetear indicadores
+                document.getElementById('displayStockAnterior').innerText = window.stockActualProducto;
+                document.getElementById('displayStockResultante').innerText = window.stockActualProducto;
+                document.getElementById('nCant').value = '';
+
+                mM.show();
+            }
+
+            // Calcular stock resultante en tiempo real
+            window.calcularStockResultante = () => {
+                const cantidad = parseInt(document.getElementById('nCant').value) || 0;
+                const tipo = document.querySelector('input[name="t"]:checked').value;
+                const stockAnterior = window.stockActualProducto || 0;
+
+                let stockResultante = stockAnterior;
+                if (tipo === 'ENTRADA') {
+                    stockResultante = stockAnterior + cantidad;
+                } else if (tipo === 'SALIDA') {
+                    stockResultante = stockAnterior - cantidad;
+                }
+
+                document.getElementById('displayStockAnterior').innerText = stockAnterior;
+                document.getElementById('displayStockResultante').innerText = stockResultante;
+
+                // Colorear según el resultado
+                const displayEl = document.getElementById('displayStockResultante');
+                if (stockResultante < 0) {
+                    displayEl.className = 'fs-5 text-danger';
+                } else if (stockResultante === 0) {
+                    displayEl.className = 'fs-5 text-warning';
+                } else {
+                    displayEl.className = 'fs-5 text-primary';
+                }
+            }
+
+            // Listener para los radio buttons de tipo de movimiento
+            document.querySelectorAll('input[name="t"]').forEach(radio => {
+                radio.addEventListener('change', calcularStockResultante);
+            });
+
+            window.pres = () => {
+                // Abrir modal vacío para préstamo múltiple
+                herramientasSeleccionadas = [];
+                document.getElementById('fPres').reset();
+                populateToolSelector();
+                renderizarTablaHerramientas();
+                mP.show();
+            }
+
+            // Llenar selector de herramientas
+            function populateToolSelector() {
+                const sel = document.getElementById('selHerramienta');
+                sel.innerHTML = '<option value="">-- Seleccione un producto --</option>';
+                data.filter(p => p.estatus === 'DISPONIBLE' && p.stock_actual > 0).forEach(p => {
+                    sel.innerHTML += `<option value="${p.id}" data-sku="${p.sku}" data-nombre="${p.nombre}" data-stock="${p.stock_actual}">${p.sku} - ${p.nombre} (Stock: ${p.stock_actual})</option>`;
+                });
+            }
+
+            // Agregar herramienta a la lista
+            window.agregarHerramienta = () => {
+                const sel = document.getElementById('selHerramienta');
+                const cant = parseInt(document.getElementById('cantHerramienta').value);
+
+                if (!sel.value) {
+                    alert('⚠️ Debe seleccionar una herramienta');
+                    return;
+                }
+
+                if (cant <= 0) {
+                    alert('⚠️ La cantidad debe ser mayor a 0');
+                    return;
+                }
+
+                const option = sel.options[sel.selectedIndex];
+                const productoId = sel.value;
+                const sku = option.getAttribute('data-sku');
+                const nombre = option.getAttribute('data-nombre');
+                const stockDisponible = parseInt(option.getAttribute('data-stock'));
+
+                if (cant > stockDisponible) {
+                    alert(`⚠️ Stock insuficiente. Disponible: ${stockDisponible}`);
+                    return;
+                }
+
+                // Verificar si ya está agregado
+                const existe = herramientasSeleccionadas.find(h => h.productoId === productoId);
+                if (existe) {
+                    alert('⚠️ Esta herramienta ya fue agregada. Elimínela primero si desea cambiar la cantidad.');
+                    return;
+                }
+
+                // Agregar a la lista
+                herramientasSeleccionadas.push({
+                    productoId,
+                    sku,
+                    nombre,
+                    cantidad: cant
+                });
+
+                // Resetear controles
+                sel.value = '';
+                document.getElementById('cantHerramienta').value = 1;
+
+                // Actualizar tabla
+                renderizarTablaHerramientas();
+            }
+
+            // Remover herramienta de la lista
+            window.removerHerramienta = (index) => {
+                herramientasSeleccionadas.splice(index, 1);
+                renderizarTablaHerramientas();
+            }
+
+            // Renderizar tabla de herramientas
+            function renderizarTablaHerramientas() {
+                const tbody = document.getElementById('tbodyHerramientas');
+                const badge = document.getElementById('badgeCount');
+
+                if (herramientasSeleccionadas.length === 0) {
+                    tbody.innerHTML = `<tr>
+                    <td colspan="4" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fs-1 mb-2 d-block opacity-25"></i>
+                        <small>No hay herramientas agregadas</small>
+                    </td>
+                </tr>`;
+                    badge.textContent = '0 items';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                herramientasSeleccionadas.forEach((h, i) => {
+                    tbody.innerHTML += `<tr>
+                    <td class="fw-bold font-monospace text-primary small">${h.sku}</td>
+                    <td class="small">${h.nombre}</td>
+                    <td class="text-center fw-bold">${h.cantidad}</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removerHerramienta(${i})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
+                });
+
+                badge.textContent = `${herramientasSeleccionadas.length} item${herramientasSeleccionadas.length !== 1 ? 's' : ''}`;
+            }
+
+            // SUBMIT LOGIC
+            document.getElementById('fileIn').addEventListener('change', async (e) => { const fd = new FormData(); fd.append('imagen', e.target.files[0]); try { const r = await fetch(`${API}/upload`, { method: 'POST', body: fd }); const j = await r.json(); if (j.success) { document.getElementById('urlIn').value = j.url; document.getElementById('prevImg').src = j.url; } } catch (x) { } });
+
+            document.getElementById('formFicha').addEventListener('submit', async (e) => { e.preventDefault(); const b = Object.fromEntries(new FormData(e.target)); const u = idx >= 0 ? `${API}/almacen/productos/${data[idx].id}` : `${API}/almacen/productos`; const m = idx >= 0 ? 'PUT' : 'POST'; await req(u, m, b, mF); });
+
+            document.getElementById('fMov').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const d = {
+                    producto_id: document.getElementById('idMov').value,
+                    tipo: document.querySelector('#fMov input:checked').value,
+                    cantidad: document.getElementById('nCant').value,
+                    motivo: document.getElementById('nMot').value,
+                    referencia: document.getElementById('nRef').value || '',
+                    responsable: document.getElementById('nRes').value || 'Admin',
+                    departamento: document.getElementById('nDept').value || '',
+                    observaciones: document.getElementById('nObs').value || ''
+                };
+                await req(`${API}/movimientos`, 'POST', d, mM);
+            });
+
+            document.getElementById('fPres').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Validar que haya herramientas seleccionadas
+                if (herramientasSeleccionadas.length === 0) {
+                    alert('⚠️ Debe agregar al menos una herramienta');
+                    return;
+                }
+
+                const responsable = document.getElementById('pTec').value.trim();
+                if (!responsable) {
+                    alert('⚠️ Debe ingresar el nombre del responsable');
+                    return;
+                }
+
+                const datosComunes = {
+                    responsable: responsable,
+                    departamento: document.getElementById('pDept').value || '',
+                    fecha_devolucion_estimada: document.getElementById('pFecDev').value || '',
+                    observaciones: document.getElementById('pObs').value || ''
+                };
+
+                // Procesar cada herramienta
+                let exitosos = 0;
+                for (const herramienta of herramientasSeleccionadas) {
+                    const d = {
+                        producto_id: herramienta.productoId,
+                        cantidad: herramienta.cantidad,
+                        ...datosComunes
+                    };
+
+                    try {
+                        const r = await fetch(`${API}/prestamos/prestar`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(d)
+                        });
+                        const j = await r.json();
+                        if (j.success) exitosos++;
+                    } catch (e) {
+                        console.error('Error procesando préstamo:', e);
+                    }
+                }
+
+                if (exitosos > 0) {
+                    alert(`✅ Se procesaron ${exitosos} de ${herramientasSeleccionadas.length} préstamo(s)`);
+
+                    // Imprimir si está marcado
+                    if (document.getElementById('chkG').checked) {
+                        printGuia(responsable, herramientasSeleccionadas);
+                    }
+
+                    mP.hide();
+                    herramientasSeleccionadas = [];
+                    await load();
+                    check();
+                } else {
+                    alert('❌ Error al procesar los préstamos');
+                }
+            });
+
+            function printGuia(res, herramientas) {
+                document.getElementById('pFolio').innerText = Math.floor(Math.random() * 9000) + 1000;
+                document.getElementById('pResp').innerText = res;
+                document.getElementById('pFecha').innerText = new Date().toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // Generar filas para todas las herramientas
+                let tbody = '';
+                herramientas.forEach(h => {
+                    tbody += `<tr>
+                    <td class="fs-4 fw-bold">${h.cantidad}</td>
+                    <td class="fw-bold">${h.sku}</td>
+                    <td>${h.nombre}</td>
+                </tr>`;
+                });
+                document.getElementById('pBody').innerHTML = tbody;
+
+                // Generar QR con información resumida
+                const qrData = `SALIDA|${res}|${herramientas.length} items|${new Date().toLocaleDateString()}`;
+                new QRious({ element: document.getElementById('qrPrint'), value: qrData, size: 90 });
+
+                setTimeout(() => window.print(), 100);
+            }
+
+            // KARDEX
+            window.verHistorial = async () => { const r = await fetch(`${API}/movimientos`); const j = await r.json(); const t = document.getElementById('tbHist'); t.innerHTML = ''; j.data.forEach(x => { t.innerHTML += `<tr><td>${new Date(x.fecha).toLocaleDateString()}</td><td><strong>${x.tipo_movimiento}</strong></td><td>${x.producto}</td><td>${x.cantidad}</td><td>${x.motivo || ''}</td></tr>` }); mH.show(); }
+
+            // DEVOLUCIONES
+            async function check() { const r = await fetch(`${API}/prestamos/pendientes`); const j = await r.json(); const n = j.data.length; document.getElementById('panelAlerta').style.setProperty('display', n > 0 ? 'flex' : 'none', 'important'); document.getElementById('numPend').innerText = n; window.lstP = j.data; }
+            window.verDevoluciones = () => { const t = document.getElementById('tbDev'); t.innerHTML = ''; window.lstP.forEach(x => t.innerHTML += `<tr><td>${x.responsable}</td><td>${x.sku}</td><td>${x.cantidad}</td><td>${new Date(x.fecha_salida).toLocaleTimeString()}</td><td><button class="btn btn-success btn-sm" onclick="dev('${x.prestamo_id}')">✔</button></td></tr>`); mD.show(); }
+            window.dev = async (id) => { if (confirm('Recibir?')) { await req(`${API}/prestamos/devolver`, 'POST', { prestamo_id: id }); mD.hide(); check(); } }
+
+            async function req(u, m, b, mod) { try { const r = await fetch(u, { method: m, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }); const j = await r.json(); if (j.success) { alert('✅ Listo'); if (mod) mod.hide(); load(); } else alert(j.message); } catch (e) { alert('ErrRed'); } }
+        </script>
+
+        <!-- FOOTER PROFESIONAL -->
+        <footer
+            style="background: linear-gradient(135deg, #003366 0%, #004a80 100%); color: white; padding: 20px 0; margin-top: 40px; text-align: center; font-size: 0.9rem; border-top: 3px solid #00a86b;">
+            <div class="container">
+                <p style="margin: 5px 0;"><strong>INVERSIONES D'YNAMEL C.A.</strong></p>
+                <p style="margin: 3px 0; opacity: 0.9;">RIF: J-408985292 | Sistema de Gestión de Almacén</p>
+                <p style="margin: 3px 0; font-size: 0.85rem; opacity: 0.8;">© 2024-2025 Todos los derechos reservados
+                </p>
+            </div>
+        </footer>
+</body>
+
+</html>
