@@ -1,7 +1,7 @@
 {
   "name": "sistema-almacen-backend",
   "version": "1.0.0",
-  "description": "Sistema modular de almacén para PDVSA",
+  "description": "Sistema modular de almacén ",
   "main": "src/app.js",
   "scripts": {
     "dev": "nodemon src/app.js",

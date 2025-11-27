@@ -6,34 +6,8 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
     console.error("❌ FALTAN LAS CREDENCIALES DE SUPABASE EN EL .ENV");
 }
 
-// CONFIGURACIÓN ESPECÍFICA PARA RAILWAY - FORZAR IPv4
-const supabaseOptions = {
-    db: {
-        schema: 'public',
-    },
-    auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-    },
-    global: {
-        headers: {
-            'x-application-context': 'railway-app',
-            'Connection': 'keep-alive'
-        },
-    }
-};
-
 // Cliente específico para Storage (Fotos)
-const supabase = createClient(
-    process.env.SUPABASE_URL, 
-    process.env.SUPABASE_ANON_KEY, 
-    supabaseOptions
-);
-
-// Verificar conexión al iniciar
-console.log('🔌 Configurando Supabase Storage...');
-console.log('📝 URL:', process.env.SUPABASE_URL ? '✅ Presente' : '❌ Faltante');
-console.log('🔑 Key:', process.env.SUPABASE_ANON_KEY ? '✅ Presente' : '❌ Faltante');
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 const uploadImage = async (file) => {
     try {
@@ -52,7 +26,7 @@ const uploadImage = async (file) => {
             });
 
         if (error) {
-            console.error("❌ Error Supabase Storage:", error);
+            console.error("Error Supabase:", error);
             throw error;
         }
 
@@ -61,10 +35,8 @@ const uploadImage = async (file) => {
             .from('inventario')
             .getPublicUrl(filePath);
 
-        console.log('✅ Imagen subida exitosamente:', urlData.publicUrl);
         return urlData.publicUrl;
     } catch (error) {
-        console.error('❌ Error subiendo imagen:', error.message);
         throw new Error(`Error subiendo imagen: ${error.message}`);
     }
 };
