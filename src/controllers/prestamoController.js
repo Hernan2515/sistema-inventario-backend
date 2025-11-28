@@ -1,13 +1,16 @@
 const { pool } = require('../config/database');
 
-// 1. PRESTAR (SOPORTA LOTE / MÚLTIPLE)
+// 1. PRESTAR (SOPORTA LOTE / MÚLTIPLE + DEPARTAMENTO + FECHA)
 const registrarPrestamo = async (req, res) => {
-    // Ahora esperamos un ARRAY de items
-    // Ejemplo body: { items: [{id: 1, cant: 1}, {id: 2, cant: 5}], responsable: "Juan", observaciones: "Obra B" }
-    const { items, responsable, observaciones } = req.body;
+    // CORRECCIÓN 1: Agregamos departamento y fecha_estimada a la recepción de datos
+    const { items, responsable, departamento, fecha_estimada, observaciones } = req.body;
     
+    // Validaciones
     if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ success: false, message: "No hay ítems seleccionados" });
+    }
+    if (!responsable) {
+        return res.status(400).json({ success: false, message: "Falta el Responsable" });
     }
 
     const client = await pool.connect();
@@ -32,25 +35,29 @@ const registrarPrestamo = async (req, res) => {
             // Restar Stock
             await client.query('UPDATE almacen_productos SET stock_actual = stock_actual - $1 WHERE id = $2', [cantidad, producto_id]);
 
-            // Crear Registro
+            // CORRECCIÓN 2: INSERT Completo (Incluyendo departamento y fecha)
+            // Agregamos columna 'estado' por defecto en 'PENDIENTE'
             await client.query(
-                `INSERT INTO almacen_prestamos (producto_id, cantidad, responsable, observaciones) VALUES ($1, $2, $3, $4)`,
-                [producto_id, cantidad, responsable, observaciones]
+                `INSERT INTO almacen_prestamos 
+                (producto_id, cantidad, responsable, departamento, fecha_estimada, observaciones, estado) 
+                VALUES ($1, $2, $3, $4, $5, $6, 'PENDIENTE')`,
+                [producto_id, cantidad, responsable, departamento, fecha_estimada || null, observaciones]
             );
         }
 
         await client.query('COMMIT');
-        res.json({ success: true, message: '✅ Guía generada. Equipos descontados.' });
+        res.json({ success: true, message: '✅ Guía generada. Equipos entregados.' });
 
     } catch (error) {
         await client.query('ROLLBACK');
+        console.error("Error Prestamo:", error); // Log para ver errores en consola
         res.status(500).json({ success: false, message: error.message });
     } finally {
         client.release();
     }
 };
 
-// 2. DEVOLVER (UNO POR UNO, OJO AL ID)
+// 2. DEVOLVER (Mantenemos tu lógica, está bien)
 const registrarDevolucion = async (req, res) => {
     const { prestamo_id } = req.body;
     const client = await pool.connect();
@@ -64,7 +71,8 @@ const registrarDevolucion = async (req, res) => {
 
         // Retornar Stock
         await client.query('UPDATE almacen_productos SET stock_actual = stock_actual + $1 WHERE id = $2', [cantidad, producto_id]);
-        // Cerrar ticket (Borrar o marcar devuelto)
+        
+        // Cerrar ticket (Lo borramos de pendientes)
         await client.query('DELETE FROM almacen_prestamos WHERE id = $1', [prestamo_id]); 
 
         await client.query('COMMIT');
@@ -75,10 +83,17 @@ const registrarDevolucion = async (req, res) => {
     } finally { client.release(); }
 };
 
+// 3. CONSULTA DE PENDIENTES (Actualizado para traer departamento si lo necesitas mostrar)
 const getPendientes = async (req, res) => {
-    // Vista join
     const q = `
-        SELECT pr.id as prestamo_id, p.nombre as herramienta, p.sku, pr.cantidad, pr.responsable, pr.fecha_salida 
+        SELECT 
+            pr.id as prestamo_id, 
+            p.nombre as herramienta, 
+            p.sku, 
+            pr.cantidad, 
+            pr.responsable, 
+            pr.departamento, -- Agregamos esto por si quieres verlo en la tabla
+            pr.fecha_salida 
         FROM almacen_prestamos pr 
         JOIN almacen_productos p ON pr.producto_id = p.id
         ORDER BY pr.fecha_salida DESC
