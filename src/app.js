@@ -32,11 +32,11 @@ app.get('/api/health', async (req, res) => {
 });
 
 // --- ARRANCAR SERVIDOR ---
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
     console.log(`\n==================================================`);
-    console.log(`🚀 SERVIDOR  ONLINE: http://localhost:${PORT}`);
+    console.log(`🚀 SERVIDOR ONLINE: http://0.0.0.0:${PORT}`);
     console.log(`==================================================`);
-
+    
     // Verificación inicial
     await checkConnection();
 });
