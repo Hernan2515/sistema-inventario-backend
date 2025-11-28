@@ -1,35 +1,42 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-console.log('🔌 Conectando a BD en:', process.env.SUPABASE_DB_HOST);
-console.log('🔌 Puerto:', process.env.SUPABASE_DB_PORT);
+// DATOS CORRECTOS (Pooler AWS-1)
+const DB_HOST = 'aws-1-us-east-1.pooler.supabase.com'; 
+const DB_PORT = 6543;
+const DB_USER = 'postgres.hkyettionggogacoatkk';
+const DB_NAME = 'postgres';
+const DB_PASS = "8.fL&BmjYL+L/Rq";
 
-const dbConfig = {
-    host: process.env.SUPABASE_DB_HOST,
-    port: process.env.SUPABASE_DB_PORT,
-    database: process.env.SUPABASE_DB_NAME,
-    user: process.env.SUPABASE_DB_USER,
-    password: process.env.SUPABASE_DB_PASSWORD,
-    ssl: { rejectUnauthorized: false }, // Obligatorio
-    connectionTimeoutMillis: 20000 // 20 segundos
-};
+// Codificamos la contraseña
+const encodedPass = encodeURIComponent(DB_PASS);
 
-const pool = new Pool(dbConfig);
+// --- CAMBIO AQUÍ ---
+// Quitamos "?sslmode=require" del final de la cadena
+// Dejamos que el objeto de abajo maneje el SSL
+const connectionString = `postgres://${DB_USER}:${encodedPass}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
 
-// Mostrar error REAL si falla
-pool.on('error', (err) => {
-    console.error('⚠️ Error inesperado del cliente DB:', err);
+console.log('🔌 Conectando a Supabase (SSL permisivo)...');
+
+const pool = new Pool({
+    connectionString: connectionString,
+    // ESTA ES LA CLAVE PARA TU ERROR:
+    ssl: { 
+        rejectUnauthorized: false // Esto le dice: "Acéptalo aunque sea self-signed"
+    },
+    connectionTimeoutMillis: 30000, 
+    idleTimeoutMillis: 30000
 });
 
 const checkConnection = async () => {
     try {
         const client = await pool.connect();
-        await client.query('SELECT NOW()');
+        const res = await client.query('SELECT NOW()'); 
         client.release();
-        console.log('✅ ¡BASE DE DATOS CONECTADA! (Puerto 5432)');
+        console.log('✅ ¡VICTORIA! CONEXIÓN TOTALMENTE EXITOSA');
         return true;
     } catch (err) {
-        console.error('❌ ERROR REAL:', err.message);
+        console.error('❌ ERROR:', err.message);
         return false;
     }
 };
